@@ -16,12 +16,17 @@ public class FreeCellLogic : MonoBehaviour
     };
 
     private static readonly int[] Values = new int[] {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13};
+    private Card Card;
+    
     public Sprite[] cardAssignments;
     public GameObject genericCardPrefab;
     public float yOffset = 0.3f;
     public float zOffset = 0.02f;
     public static Dictionary<string, int> cardIndexMap;
     public static List<Tuple<Suits, int>> unshuffledDeck;
+    public static List<GameObject> unshuffledDeckV2;
+    
+    
    
     
     // For aligning the cards
@@ -73,11 +78,55 @@ public class FreeCellLogic : MonoBehaviour
 
         return generatedDeck;
     }
+    
+    
+    public List<GameObject> GenerateDeckV2()
+    {
+        List<GameObject> generatedDeck = new List<GameObject>();
+        foreach (Suits suit in Enum.GetValues(typeof(Suits)))
+        {
+            foreach (int value in Values)
+            {
+                //Card c = new Card();
+
+                GameObject generatedCard = Instantiate(genericCardPrefab,
+                    Vector3.zero, Quaternion.identity);
+                generatedCard.name = value + " of " + suit;
+                generatedCard.AddComponent<Card>();
+                generatedCard.GetComponent<Card>().suit = suit;
+                generatedCard.GetComponent<Card>().val = value;
+                generatedCard.GetComponent<Card>().column = 0; // todo: must be updated in future !!!
+                generatedCard.GetComponent<Card>().isCardDataUpdated = true;  // todo obsolete??
+                // TODO add a position ?
+ 
+                generatedDeck.Add(generatedCard);
+            }
+        }
+
+        return generatedDeck;
+    }
+    
 
     public void PlayGame()
     {
         List<Tuple<Suits, int>> newDeck = GenerateDeck();
         unshuffledDeck = GenerateDeck();
+
+        List<GameObject> newDeckV2 = GenerateDeckV2();
+        unshuffledDeckV2 = GenerateDeckV2(); // todo potentially superfluous 
+        Shuffle(newDeckV2);
+        
+        foreach (GameObject g in newDeckV2)
+        {
+            Card cardInfo = g.GetComponent<Card>();
+            Debug.Log(cardInfo.suit + " " + cardInfo.val);
+        }
+        
+        
+        
+        // todo must have deck as card class...
+        
+        
         cardIndexMap = generateCardIndexMap(unshuffledDeck);
         Shuffle(newDeck);
         int count = 0;
@@ -92,7 +141,7 @@ public class FreeCellLogic : MonoBehaviour
         }
         Debug.Log("This deck has # of cards: " + count); // sanity check for 52 cards
         DistributeCards(newDeck);
-        StartCoroutine(DealCards(newDeck));
+        //StartCoroutine(DealCards(newDeck));
     }
 
     void Shuffle<T>(List<T> list)

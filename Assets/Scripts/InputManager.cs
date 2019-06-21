@@ -119,4 +119,10 @@ public class InputManager : MonoBehaviour
     {
         Debug.Log("Clicked a Field Square");
     }
+
+    private GameObject retrieveNearbyGameObject()
+    {
+        // todo implement
+        return null;
+    }
 }
