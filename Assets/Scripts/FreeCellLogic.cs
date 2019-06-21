@@ -37,6 +37,7 @@ public class FreeCellLogic : MonoBehaviour
     public List<Tuple<Suits, int>> freeCells;
     public List<Tuple<Suits, int>> solutionCells;
     public List<Tuple<Suits, int>>[] fieldCells;
+    public List<Stack<GameObject>> fieldCellsV2;
     public List<List<GameObject>> cardObjects = new List<List<GameObject>>();
 
     private List<Tuple<Suits, int>> field0 = new List<Tuple<Suits, int>>();
@@ -47,6 +48,15 @@ public class FreeCellLogic : MonoBehaviour
     private List<Tuple<Suits, int>> field5 = new List<Tuple<Suits, int>>();
     private List<Tuple<Suits, int>> field6 = new List<Tuple<Suits, int>>();
     private List<Tuple<Suits, int>> field7 = new List<Tuple<Suits, int>>();
+    
+    private Stack<GameObject> field0V2 = new Stack<GameObject>();
+    private Stack<GameObject> field1V2 = new Stack<GameObject>();
+    private Stack<GameObject> field2V2 = new Stack<GameObject>();
+    private Stack<GameObject> field3V2 = new Stack<GameObject>();
+    private Stack<GameObject> field4V2 = new Stack<GameObject>();
+    private Stack<GameObject> field5V2 = new Stack<GameObject>();
+    private Stack<GameObject> field6V2 = new Stack<GameObject>();
+    private Stack<GameObject> field7V2 = new Stack<GameObject>();
 
 
     
@@ -54,6 +64,13 @@ public class FreeCellLogic : MonoBehaviour
     void Start()
     {
         fieldCells = new[] {field0, field1, field2, field3, field4, field5, field6, field7};
+        fieldCellsV2 = new List<Stack<GameObject>>()
+        {field0V2, field1V2, field2V2, field3V2,
+            field4V2,
+            field5V2,
+            field6V2,
+            field7V2
+        };
         PlayGame();
        
     }
@@ -97,7 +114,7 @@ public class FreeCellLogic : MonoBehaviour
                 generatedCard.GetComponent<Card>().val = value;
                 generatedCard.GetComponent<Card>().column = 0; // todo: must be updated in future !!!
                 generatedCard.GetComponent<Card>().isCardDataUpdated = true;  // todo obsolete??
-                // TODO add a position ?
+     
  
                 generatedDeck.Add(generatedCard);
             }
@@ -113,7 +130,7 @@ public class FreeCellLogic : MonoBehaviour
         unshuffledDeck = GenerateDeck();
 
         List<GameObject> newDeckV2 = GenerateDeckV2();
-        unshuffledDeckV2 = GenerateDeckV2(); // todo potentially superfluous 
+        //unshuffledDeckV2 = GenerateDeckV2(); // todo potentially superfluous 
         Shuffle(newDeckV2);
         
         foreach (GameObject g in newDeckV2)
@@ -127,20 +144,15 @@ public class FreeCellLogic : MonoBehaviour
         // todo must have deck as card class...
         
         
-        cardIndexMap = generateCardIndexMap(unshuffledDeck);
-        Shuffle(newDeck);
-        int count = 0;
+        cardIndexMap = generateCardIndexMap(unshuffledDeck); // TODO REMOVE?
         foreach (KeyValuePair<string, int> d in cardIndexMap)
         {
             //Debug.Log(d);
         }
-        foreach (Tuple<Suits, int> t in newDeck)
-        {
-            count++;
-            //Debug.Log(t);
-        }
-        Debug.Log("This deck has # of cards: " + count); // sanity check for 52 cards
-        DistributeCards(newDeck);
+        
+        //DistributeCards(newDeck);
+        DistributeCardsV2(newDeckV2);
+
         //StartCoroutine(DealCards(newDeck));
     }
 
@@ -212,6 +224,7 @@ public class FreeCellLogic : MonoBehaviour
         return dictionary;
     }
 
+    /*
     private void DistributeCards(List<Tuple<Suits, int>> deck)
     {
         // distribute first 
@@ -229,6 +242,44 @@ public class FreeCellLogic : MonoBehaviour
         {
             fieldCells[i].Add(deck.Last());
             deck.RemoveAt(deck.Count - 1);
+        }
+    }
+    */
+    
+    private void DistributeCardsV2(List<GameObject> deck)
+    {
+        // distribute first 
+        for (int i = 0; i < 8; i++)
+        {
+            float zInitial = 0.3f;
+            float yInitial = 0f;
+            
+            for (int j = 0; j < 6; j++)
+            {
+                fieldCellsV2[i].Push(deck.Last());
+                deck.Last().transform.position = new Vector3(fieldCellsPos[i].transform.position.x, fieldCellsPos[i].transform.position.y - yInitial,
+                    fieldCellsPos[i].transform.position.z - zInitial);
+
+                
+                if (i >= 4 && j == 5)
+                {
+                    deck.Last().GetComponent<Card>().isClickable = true;
+                }
+                
+                deck.RemoveAt(deck.Count - 1); // todo remove?
+                yInitial = yOffset * fieldCellsV2[i].Count;
+                zInitial += zOffset;
+            }
+        }
+        
+        // distribute remaining 4 cards
+        for (int i = 0; i < 4; i++)
+        {
+            deck.Last().transform.position = new Vector3(fieldCellsV2[i].Peek().transform.position.x, fieldCellsV2[i].Peek().transform.position.y - yOffset,
+                fieldCellsV2[i].Peek().transform.position.z - zOffset);
+            deck.Last().GetComponent<Card>().isClickable = true;
+            fieldCellsV2[i].Push(deck.Last());
+            deck.RemoveAt(deck.Count - 1); // todo remove?
         }
     }
 
