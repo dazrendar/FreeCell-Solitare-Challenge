@@ -414,6 +414,7 @@ public class FreeCellLogic : MonoBehaviour
 
     private void MoveToFreeCell(GameObject clickedCard, Card cardComponent, int columnToUpdate)
     {
+        
         foreach (GameObject freeCell in freeCellsPos)
         {
             //Debug.Log(freeCell.GetComponent<FreeCell>().isFree);
@@ -426,6 +427,12 @@ public class FreeCellLogic : MonoBehaviour
                 clickedCard.GetComponent<Card>().isInFreeCellSpace = true; // todo USE THIS!!!!
                 clickedCard.GetComponent<Card>().isClickable = true;  // todo changed this.. must modify logic (in handler)!!!
                 columnToUpdate = clickedCard.GetComponent<Card>().column;
+                fieldCellsV2[cardComponent.column].Pop();
+                GameObject lastCard = fieldCellsV2[cardComponent.column].Peek();
+                if (lastCard != null)
+                {
+                    lastCard.GetComponent<Card>().isClickable = true;
+                }
                 break;
             }
         }
@@ -436,17 +443,13 @@ public class FreeCellLogic : MonoBehaviour
         */
         //fieldCells[columnToUpdate][indexToRemove-1] 
 
-        fieldCellsV2[cardComponent.column].Pop();
+        
         // make next card up clickable
         //cardObjects[columnToUpdate].RemoveAt(indexToRemove);
         //GameObject cardToUpdate = cardObjects[columnToUpdate][indexToRemove - 1];
         //cardToUpdate.GetComponent<Card>().isClickable = true;
         
-        GameObject lastCard = fieldCellsV2[cardComponent.column].Peek();
-        if (lastCard != null)
-        {
-            lastCard.GetComponent<Card>().isClickable = true;
-        }
+        
     }
     
     private void HandleSolutionPlacement(GameObject clickedCard, Card cardComponent, int suitIndex)
