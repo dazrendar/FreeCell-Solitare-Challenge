@@ -102,7 +102,7 @@ public class InputManager : MonoBehaviour
     private void ClickedCard(GameObject clickedCard)
     {
         //Debug.Log("Clicked a Card");
-        freeCellLogicScript.TryToMoveCardToEmptySlot(clickedCard);
+        freeCellLogicScript.HandleCardClick(clickedCard);
     }
 
     private void ClickedSolution()

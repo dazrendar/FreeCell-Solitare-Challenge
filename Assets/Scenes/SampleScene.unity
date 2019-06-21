@@ -6549,10 +6549,10 @@ MonoBehaviour:
   - {fileID: 1844864477}
   - {fileID: 2144940734}
   solutionCellsPos:
-  - {fileID: 1773931165}
-  - {fileID: 92132498}
-  - {fileID: 355658915}
   - {fileID: 1914693935}
+  - {fileID: 355658915}
+  - {fileID: 92132498}
+  - {fileID: 1773931165}
   fieldCellsPos:
   - {fileID: 1013752169}
   - {fileID: 8748845}
@@ -6562,6 +6562,7 @@ MonoBehaviour:
   - {fileID: 589924499}
   - {fileID: 695435555}
   - {fileID: 1438617360}
+  freeCells: []
 --- !u!4 &1160387462
 Transform:
   m_ObjectHideFlags: 0

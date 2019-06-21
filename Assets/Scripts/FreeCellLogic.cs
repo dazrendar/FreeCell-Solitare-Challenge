@@ -34,12 +34,13 @@ public class FreeCellLogic : MonoBehaviour
     public GameObject[] solutionCellsPos;
     public GameObject[] fieldCellsPos;
     
-    public List<Tuple<Suits, int>> freeCells;
-    public List<Tuple<Suits, int>> solutionCells;
+    public List<GameObject> freeCells;
     public List<Tuple<Suits, int>>[] fieldCells;
     public List<Stack<GameObject>> fieldCellsV2;
+    public List<Stack<GameObject>> solutionCells;
     public List<List<GameObject>> cardObjects = new List<List<GameObject>>();
 
+    
     private List<Tuple<Suits, int>> field0 = new List<Tuple<Suits, int>>();
     private List<Tuple<Suits, int>> field1 = new List<Tuple<Suits, int>>();
     private List<Tuple<Suits, int>> field2 = new List<Tuple<Suits, int>>();
@@ -57,19 +58,32 @@ public class FreeCellLogic : MonoBehaviour
     private Stack<GameObject> field5V2 = new Stack<GameObject>();
     private Stack<GameObject> field6V2 = new Stack<GameObject>();
     private Stack<GameObject> field7V2 = new Stack<GameObject>();
+    
+    // To represent the card piles we have passed to the solution
+    private Stack<GameObject> solution0 = new Stack<GameObject>(); // Index 0 = Clubs
+    private Stack<GameObject> solution1 = new Stack<GameObject>(); // 1 = Spades
+    private Stack<GameObject> solution2 = new Stack<GameObject>(); // 2 = Diamonds
+    private Stack<GameObject> solution3 = new Stack<GameObject>(); // 3 = Heats
 
 
     
     // Start is called before the first frame update
     void Start()
     {
-        fieldCells = new[] {field0, field1, field2, field3, field4, field5, field6, field7};
+        fieldCells = new[] {field0, field1, field2, field3, field4, field5, field6, field7}; // todo obsolete
         fieldCellsV2 = new List<Stack<GameObject>>()
-        {field0V2, field1V2, field2V2, field3V2,
-            field4V2,
-            field5V2,
-            field6V2,
-            field7V2
+        {
+            field0V2, field1V2, field2V2, field3V2,
+            field4V2, field5V2, field6V2, field7V2
+        };
+
+        solutionCells = new List<Stack<GameObject>>()
+        {
+            solution0, solution1, solution2, solution3
+        };
+        freeCells = new List<GameObject>(4)
+        {
+            new GameObject(), new GameObject(), new GameObject(), new GameObject()
         };
         PlayGame();
        
@@ -133,11 +147,13 @@ public class FreeCellLogic : MonoBehaviour
         //unshuffledDeckV2 = GenerateDeckV2(); // todo potentially superfluous 
         Shuffle(newDeckV2);
         
+        /*
         foreach (GameObject g in newDeckV2)
         {
             Card cardInfo = g.GetComponent<Card>();
             Debug.Log(cardInfo.suit + " " + cardInfo.val);
         }
+        */
         
         
         
@@ -246,6 +262,10 @@ public class FreeCellLogic : MonoBehaviour
     }
     */
     
+    /*
+     * Attaches card objects to Stacks (per column), and updates each
+     * card position as per initial "dealing"
+     */
     private void DistributeCardsV2(List<GameObject> deck)
     {
         // distribute first 
@@ -257,6 +277,7 @@ public class FreeCellLogic : MonoBehaviour
             for (int j = 0; j < 6; j++)
             {
                 fieldCellsV2[i].Push(deck.Last());
+                deck.Last().GetComponent<Card>().column = i;
                 deck.Last().transform.position = new Vector3(fieldCellsPos[i].transform.position.x, fieldCellsPos[i].transform.position.y - yInitial,
                     fieldCellsPos[i].transform.position.z - zInitial);
 
@@ -277,47 +298,144 @@ public class FreeCellLogic : MonoBehaviour
         {
             deck.Last().transform.position = new Vector3(fieldCellsV2[i].Peek().transform.position.x, fieldCellsV2[i].Peek().transform.position.y - yOffset,
                 fieldCellsV2[i].Peek().transform.position.z - zOffset);
+            deck.Last().GetComponent<Card>().column = i;
             deck.Last().GetComponent<Card>().isClickable = true;
             fieldCellsV2[i].Push(deck.Last());
             deck.RemoveAt(deck.Count - 1); // todo remove?
         }
     }
 
-    public void TryToMoveCardToEmptySlot(GameObject clickedCard)
+    public void HandleCardClick(GameObject clickedCard)
     {
-        if (clickedCard.GetComponent<Card>().isClickable)
+        Card cardComponent = clickedCard.GetComponent<Card>();
+        if (cardComponent.isClickable && !cardComponent.isInFreeCellSpace)
         {
             Debug.Log("Clicked a clickable card!");
             // check which freecells are avail (iterate) (reminder; these cannot stack!)
 
             int columnToUpdate = 0;
             
-            foreach (GameObject freeCell in freeCellsPos)
+
+            // Case: Card can be moved to Solution Pile
+            // check solution pile
+            if (cardComponent.suit == Suits.Clubs)
             {
-                //Debug.Log(freeCell.GetComponent<FreeCell>().isFree);
-                if (freeCell.GetComponent<FreeCell>().isFree)
+                if (solutionCells[0].Count == 0 && cardComponent.val == 1)
                 {
-                    clickedCard.transform.position = new Vector3(freeCell.transform.position.x, freeCell.transform.position.y, freeCell.transform.position.z - 0.3f);
-                    freeCell.GetComponent<FreeCell>().isFree = false;
-                    clickedCard.GetComponent<Card>().isInFreeCellSpace = true;
-                    clickedCard.GetComponent<Card>().isClickable = false;
-                    columnToUpdate = clickedCard.GetComponent<Card>().column; 
-                    break;
+                    Debug.Log("FOUND AN ACE!!");
+                    HandleAceSolutionPlacement(clickedCard, cardComponent, 0);
+                }
+                // Case: Card can only be potentially moved to a "Free Cell"
+                else
+                {
+                    MoveToFreeCell(clickedCard, cardComponent, columnToUpdate);
                 }
             }
+            else if (cardComponent.suit == Suits.Spades)
+            {
+                if (solutionCells[1].Count == 0 && cardComponent.val == 1)
+                {
+                    Debug.Log("FOUND AN ACE!!");
+                    HandleAceSolutionPlacement(clickedCard, cardComponent, 1);
+                }
+                // Case: Card can only be potentially moved to a "Free Cell"
+                else
+                {
+                    MoveToFreeCell(clickedCard, cardComponent, columnToUpdate);
+                }
+            }
+            else if (cardComponent.suit == Suits.Diamonds)
+            {
+                if (solutionCells[2].Count == 0 && cardComponent.val == 1)
+                {
+                    Debug.Log("FOUND AN ACE!!");
+                    HandleAceSolutionPlacement(clickedCard, cardComponent, 2);
+                }
+                // Case: Card can only be potentially moved to a "Free Cell"
+                else
+                {
+                    MoveToFreeCell(clickedCard, cardComponent, columnToUpdate);
+                }
+            }
+            else if (cardComponent.suit == Suits.Hearts)
+            {
+                if (solutionCells[3].Count == 0 && cardComponent.val == 1)
+                {
+                    Debug.Log("FOUND AN ACE!!");
+                    HandleAceSolutionPlacement(clickedCard, cardComponent, 3);
+                }
+                // Case: Card can only be potentially moved to a "Free Cell"
+                else
+                {
+                    MoveToFreeCell(clickedCard, cardComponent, columnToUpdate);
+                }
+            }
+        }
+        // Case: Card is in Free Cell space:
+        else if (cardComponent.isClickable && cardComponent.isInFreeCellSpace)
+        {
+            // TODO IMPLEMENT
+        }
+    }
+    
+    
+    private void MoveFromFreeCell(GameObject clickedCard, Card cardComponent, int columnToUpdate)
+    {
+        // TODO: Implement
+    }
 
-            int indexToRemove = fieldCells[columnToUpdate].Count - 1;
-            fieldCells[columnToUpdate].RemoveAt(indexToRemove);
-            //fieldCells[columnToUpdate][indexToRemove-1] 
+    private void MoveToFreeCell(GameObject clickedCard, Card cardComponent, int columnToUpdate)
+    {
+        foreach (GameObject freeCell in freeCellsPos)
+        {
+            //Debug.Log(freeCell.GetComponent<FreeCell>().isFree);
+            if (freeCell.GetComponent<FreeCell>().isFree)
+            {
+                clickedCard.transform.position = new Vector3(freeCell.transform.position.x,
+                    freeCell.transform.position.y, freeCell.transform.position.z - 0.3f);
+                freeCells[columnToUpdate] = clickedCard;
+                freeCell.GetComponent<FreeCell>().isFree = false;
+                clickedCard.GetComponent<Card>().isInFreeCellSpace = true; // todo USE THIS!!!!
+                clickedCard.GetComponent<Card>().isClickable = true;  // todo changed this.. must modify logic (in handler)!!!
+                columnToUpdate = clickedCard.GetComponent<Card>().column;
+                break;
+            }
+        }
 
-            // make next card up clickable
-            cardObjects[columnToUpdate].RemoveAt(indexToRemove);
-            GameObject cardToUpdate = cardObjects[columnToUpdate][indexToRemove - 1];
-            cardToUpdate.GetComponent<Card>().isClickable = true;
+        /*
+        int indexToRemove = fieldCells[columnToUpdate].Count - 1; // remove
+        fieldCells[columnToUpdate].RemoveAt(indexToRemove);  // remove
+        */
+        //fieldCells[columnToUpdate][indexToRemove-1] 
+
+        fieldCellsV2[cardComponent.column].Pop();
+        // make next card up clickable
+        //cardObjects[columnToUpdate].RemoveAt(indexToRemove);
+        //GameObject cardToUpdate = cardObjects[columnToUpdate][indexToRemove - 1];
+        //cardToUpdate.GetComponent<Card>().isClickable = true;
+        
+        GameObject lastCard = fieldCellsV2[cardComponent.column].Peek();
+        if (lastCard != null)
+        {
+            lastCard.GetComponent<Card>().isClickable = true;
+        }
+    }
+
+    private void HandleAceSolutionPlacement(GameObject clickedCard, Card cardComponent, int suitIndex)
+    {
+        solutionCells[suitIndex].Push(clickedCard);
+        // update card position TODO !!!!!!! 
+        clickedCard.transform.position = new Vector3(solutionCellsPos[suitIndex].transform.position.x,
+            solutionCellsPos[suitIndex].transform.position.y, solutionCellsPos[suitIndex].transform.position.z - 0.3f);
+        fieldCellsV2[cardComponent.column].Pop();
+        GameObject lastCard = fieldCellsV2[cardComponent.column].Peek();
+        if (lastCard != null)
+        {
+            lastCard.GetComponent<Card>().isClickable = true;
         }
         else
         {
-            Debug.Log("cannot click this card!");
+            // todo do i need to add logic here? fieldSquare should be clickable now (no obstruction from card)...
         }
     }
 
