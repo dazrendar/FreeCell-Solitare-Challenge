@@ -323,7 +323,14 @@ public class FreeCellLogic : MonoBehaviour
                 if (solutionCells[0].Count == 0 && cardComponent.val == 1)
                 {
                     Debug.Log("FOUND AN ACE!!");
-                    HandleAceSolutionPlacement(clickedCard, cardComponent, 0);
+                    HandleSolutionPlacement(clickedCard, cardComponent, 0);
+                }
+                // Case: Current card value is 1 greater than card at top of solution pile
+                else if (solutionCells[0].Count > 0 && 
+                         cardComponent.val == solutionCells[0].Peek().GetComponent<Card>().val+1)
+                {
+                    Debug.Log("HANDLING NEXT CARD TO SEND");
+                    HandleSolutionPlacement(clickedCard, cardComponent, 0);
                 }
                 // Case: Card can only be potentially moved to a "Free Cell"
                 else
@@ -336,7 +343,14 @@ public class FreeCellLogic : MonoBehaviour
                 if (solutionCells[1].Count == 0 && cardComponent.val == 1)
                 {
                     Debug.Log("FOUND AN ACE!!");
-                    HandleAceSolutionPlacement(clickedCard, cardComponent, 1);
+                    HandleSolutionPlacement(clickedCard, cardComponent, 1);
+                }
+                // Case: Current card value is 1 greater than card at top of solution pile
+                else if (solutionCells[1].Count > 0 && 
+                         cardComponent.val == solutionCells[1].Peek().GetComponent<Card>().val+1)
+                {
+                    Debug.Log("HANDLING NEXT CARD TO SEND");
+                    HandleSolutionPlacement(clickedCard, cardComponent, 1);
                 }
                 // Case: Card can only be potentially moved to a "Free Cell"
                 else
@@ -349,7 +363,14 @@ public class FreeCellLogic : MonoBehaviour
                 if (solutionCells[2].Count == 0 && cardComponent.val == 1)
                 {
                     Debug.Log("FOUND AN ACE!!");
-                    HandleAceSolutionPlacement(clickedCard, cardComponent, 2);
+                    HandleSolutionPlacement(clickedCard, cardComponent, 2);
+                }
+                // Case: Current card value is 1 greater than card at top of solution pile
+                else if (solutionCells[2].Count > 0 && 
+                         cardComponent.val == solutionCells[2].Peek().GetComponent<Card>().val+1)
+                {
+                    Debug.Log("HANDLING NEXT CARD TO SEND");
+                    HandleSolutionPlacement(clickedCard, cardComponent, 2);
                 }
                 // Case: Card can only be potentially moved to a "Free Cell"
                 else
@@ -362,7 +383,14 @@ public class FreeCellLogic : MonoBehaviour
                 if (solutionCells[3].Count == 0 && cardComponent.val == 1)
                 {
                     Debug.Log("FOUND AN ACE!!");
-                    HandleAceSolutionPlacement(clickedCard, cardComponent, 3);
+                    HandleSolutionPlacement(clickedCard, cardComponent, 3);
+                }
+                // Case: Current card value is 1 greater than card at top of solution pile
+                else if (solutionCells[3].Count > 0 && 
+                         cardComponent.val == solutionCells[3].Peek().GetComponent<Card>().val+1)
+                {
+                    Debug.Log("HANDLING NEXT CARD TO SEND");
+                    HandleSolutionPlacement(clickedCard, cardComponent, 3);
                 }
                 // Case: Card can only be potentially moved to a "Free Cell"
                 else
@@ -392,7 +420,7 @@ public class FreeCellLogic : MonoBehaviour
             if (freeCell.GetComponent<FreeCell>().isFree)
             {
                 clickedCard.transform.position = new Vector3(freeCell.transform.position.x,
-                    freeCell.transform.position.y, freeCell.transform.position.z - 0.3f);
+                    freeCell.transform.position.y, freeCell.transform.position.z - 0.03f);
                 freeCells[columnToUpdate] = clickedCard;
                 freeCell.GetComponent<FreeCell>().isFree = false;
                 clickedCard.GetComponent<Card>().isInFreeCellSpace = true; // todo USE THIS!!!!
@@ -420,13 +448,24 @@ public class FreeCellLogic : MonoBehaviour
             lastCard.GetComponent<Card>().isClickable = true;
         }
     }
-
-    private void HandleAceSolutionPlacement(GameObject clickedCard, Card cardComponent, int suitIndex)
+    
+    private void HandleSolutionPlacement(GameObject clickedCard, Card cardComponent, int suitIndex)
     {
-        solutionCells[suitIndex].Push(clickedCard);
+        
         // update card position TODO !!!!!!! 
-        clickedCard.transform.position = new Vector3(solutionCellsPos[suitIndex].transform.position.x,
-            solutionCellsPos[suitIndex].transform.position.y, solutionCellsPos[suitIndex].transform.position.z - 0.3f);
+        Debug.Log(" ** solutionCells Count = " + solutionCells[suitIndex].Count());
+        if (solutionCells[suitIndex].Count() == 0) {
+            clickedCard.transform.position = new Vector3(solutionCellsPos[suitIndex].transform.position.x,
+                solutionCellsPos[suitIndex].transform.position.y, solutionCellsPos[suitIndex].transform.position.z - 0.3f);
+        }
+        else
+        {
+            Vector3 topMostCardPos = solutionCells[suitIndex].Peek().transform.position;
+            clickedCard.transform.position = new Vector3(topMostCardPos.x,
+                topMostCardPos.y-0.03f, topMostCardPos.z - 0.03f);
+        }
+        solutionCells[suitIndex].Push(clickedCard);
+        
         fieldCellsV2[cardComponent.column].Pop();
         GameObject lastCard = fieldCellsV2[cardComponent.column].Peek();
         if (lastCard != null)
