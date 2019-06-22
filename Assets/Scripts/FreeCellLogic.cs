@@ -308,7 +308,7 @@ public class FreeCellLogic : MonoBehaviour
     public void HandleCardClick(GameObject clickedCard)
     {
         Card cardComponent = clickedCard.GetComponent<Card>();
-        if (cardComponent.isClickable && !cardComponent.isInFreeCellSpace)
+        if (cardComponent.isClickable)
         {
             Debug.Log("Clicked a clickable card!");
             // check which freecells are avail (iterate) (reminder; these cannot stack!)
@@ -317,7 +317,6 @@ public class FreeCellLogic : MonoBehaviour
             
 
             // Case: Card can be moved to Solution Pile
-            // check solution pile
             if (cardComponent.suit == Suits.Clubs)
             {
                 if (solutionCells[0].Count == 0 && cardComponent.val == 1)
@@ -333,7 +332,7 @@ public class FreeCellLogic : MonoBehaviour
                     HandleSolutionPlacement(clickedCard, cardComponent, 0);
                 }
                 // Case: Card can only be potentially moved to a "Free Cell"
-                else
+                else if (!cardComponent.isInFreeCellSpace)
                 {
                     MoveToFreeCell(clickedCard, cardComponent, columnToUpdate);
                 }
@@ -353,7 +352,7 @@ public class FreeCellLogic : MonoBehaviour
                     HandleSolutionPlacement(clickedCard, cardComponent, 1);
                 }
                 // Case: Card can only be potentially moved to a "Free Cell"
-                else
+                else if (!cardComponent.isInFreeCellSpace)
                 {
                     MoveToFreeCell(clickedCard, cardComponent, columnToUpdate);
                 }
@@ -373,7 +372,7 @@ public class FreeCellLogic : MonoBehaviour
                     HandleSolutionPlacement(clickedCard, cardComponent, 2);
                 }
                 // Case: Card can only be potentially moved to a "Free Cell"
-                else
+                else if (!cardComponent.isInFreeCellSpace)
                 {
                     MoveToFreeCell(clickedCard, cardComponent, columnToUpdate);
                 }
@@ -393,7 +392,7 @@ public class FreeCellLogic : MonoBehaviour
                     HandleSolutionPlacement(clickedCard, cardComponent, 3);
                 }
                 // Case: Card can only be potentially moved to a "Free Cell"
-                else
+                else if (!cardComponent.isInFreeCellSpace)
                 {
                     MoveToFreeCell(clickedCard, cardComponent, columnToUpdate);
                 }
@@ -414,7 +413,7 @@ public class FreeCellLogic : MonoBehaviour
 
     private void MoveToFreeCell(GameObject clickedCard, Card cardComponent, int columnToUpdate)
     {
-        
+        int index = 0;
         foreach (GameObject freeCell in freeCellsPos)
         {
             //Debug.Log(freeCell.GetComponent<FreeCell>().isFree);
@@ -424,7 +423,7 @@ public class FreeCellLogic : MonoBehaviour
                     freeCell.transform.position.y, freeCell.transform.position.z - 0.03f);
                 freeCells[columnToUpdate] = clickedCard;
                 freeCell.GetComponent<FreeCell>().isFree = false;
-                clickedCard.GetComponent<Card>().isInFreeCellSpace = true; // todo USE THIS!!!!
+                clickedCard.GetComponent<Card>().isInFreeCellSpace = true; 
                 clickedCard.GetComponent<Card>().isClickable = true;  // todo changed this.. must modify logic (in handler)!!!
                 columnToUpdate = clickedCard.GetComponent<Card>().column;
                 fieldCellsV2[cardComponent.column].Pop();
@@ -435,6 +434,7 @@ public class FreeCellLogic : MonoBehaviour
                 }
                 break;
             }
+            index++;
         }
 
         /*
@@ -468,16 +468,23 @@ public class FreeCellLogic : MonoBehaviour
                 topMostCardPos.y-0.03f, topMostCardPos.z - 0.03f);
         }
         solutionCells[suitIndex].Push(clickedCard);
-        
-        fieldCellsV2[cardComponent.column].Pop();
-        GameObject lastCard = fieldCellsV2[cardComponent.column].Peek();
-        if (lastCard != null)
+
+        if (cardComponent.isInFreeCellSpace) // TODO MUST UPDATE COL IN FREE CELL SPACE
         {
-            lastCard.GetComponent<Card>().isClickable = true;
+            freeCellsPos[cardComponent.column].GetComponent<FreeCell>().isFree = true;
         }
         else
         {
-            // todo do i need to add logic here? fieldSquare should be clickable now (no obstruction from card)...
+            fieldCellsV2[cardComponent.column].Pop();
+            GameObject lastCard = fieldCellsV2[cardComponent.column].Peek();
+            if (lastCard != null)
+            {
+                lastCard.GetComponent<Card>().isClickable = true;
+            }
+            else
+            {
+                // todo do i need to add logic here? fieldSquare should be clickable now (no obstruction from card)...
+            }
         }
     }
 
