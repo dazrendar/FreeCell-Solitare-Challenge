@@ -6541,8 +6541,10 @@ MonoBehaviour:
   - {fileID: 21300000, guid: 947341c1b71d5394c802e7c1cc480f7c, type: 3}
   genericCardPrefab: {fileID: 3311093988106201138, guid: 2e641bcef1401584d8fb89469cf5a40a,
     type: 3}
-  yOffset: 0.3
+  yOffset: 0.5
   zOffset: 0.02
+  xPlacementOffset: 1
+  yPlacementOffset: 1
   freeCellsPos:
   - {fileID: 1347903958}
   - {fileID: 704802314}
@@ -6589,6 +6591,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: aa9ee3f07d6fe0b4397381c32d55d035, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  mouseClickTimeDelay: 0.5
 --- !u!1001 &1177399895
 PrefabInstance:
   m_ObjectHideFlags: 0

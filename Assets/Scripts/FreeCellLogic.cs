@@ -520,6 +520,8 @@ public class FreeCellLogic : MonoBehaviour
                         && 
                         cardAtTop.val - 1 == cardToPlace.val)
                     {
+                        // Set top of stack in free cells pile to not be clickable
+                        fieldCellsV2[i].Peek().GetComponent<Card>().isClickable = false;
                         fieldCellsV2[i].Push(currentHeldCard);
                         currentHeldCard.transform.position = new Vector3(cardPos.x,
                             cardPos.y - yOffset, cardPos.z - zOffset);
@@ -527,8 +529,6 @@ public class FreeCellLogic : MonoBehaviour
                         // update prev DataStruct    
                         if (cardToPlace.isInFreeCellSpace)
                         {
-                            Debug.Log("-----");
-                            Debug.Log(cardToPlace.column);
                             freeCellsPos[cardToPlace.column].GetComponent<FreeCell>().isFree = true;
                         }
                         else
