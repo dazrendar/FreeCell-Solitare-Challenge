@@ -25,6 +25,8 @@ public class FreeCellLogic : MonoBehaviour
     public static Dictionary<string, int> cardIndexMap;
     public static List<Tuple<Suits, int>> unshuffledDeck;
     public static List<GameObject> unshuffledDeckV2;
+    public float xPlacementOffset = 0.65f;
+    public float yPlacementOffset = 1f;
     
     
    
@@ -493,5 +495,65 @@ public class FreeCellLogic : MonoBehaviour
         clickedCard.transform.position = 
             Camera.main.ScreenToWorldPoint(new Vector3(Input.mousePosition.x, Input.mousePosition.y, 8));
         
+    }
+
+    public void SnapCard(Vector3 mousePosition, GameObject currentHeldCard, Vector3 originalCardPos)
+    {
+        for (int i = 0; i < fieldCellsV2.Count; i++)
+        {
+            if (fieldCellsV2[i].Count > 0)
+            {
+                Vector3 cardPos = fieldCellsV2[i].Peek().transform.position;
+                if ((mousePosition.x < cardPos.x + xPlacementOffset
+                     && mousePosition.x > cardPos.x - xPlacementOffset)
+                    && mousePosition.y < cardPos.y + yPlacementOffset
+                    && mousePosition.y > cardPos.y - yPlacementOffset)
+                {
+                    Debug.Log("TARGET ACQUIRED");
+                    GameObject cardObjectAtTop = fieldCellsV2[i].Peek();
+                    Card cardAtTop = cardObjectAtTop.GetComponent<Card>();
+                    Card cardToPlace = currentHeldCard.GetComponent<Card>();
+                    if (cardAtTop.suit != cardToPlace.suit
+                        && cardAtTop.val - 1 == cardToPlace.val)
+                    {
+                        fieldCellsV2[i].Push(currentHeldCard);
+                        currentHeldCard.transform.position = new Vector3(cardPos.x,
+                            cardPos.y - yOffset, cardPos.z - zOffset);
+                        
+                        // update prev DataStruct    
+                        if (cardToPlace.isInFreeCellSpace)
+                        {
+                            freeCells[cardToPlace.column].GetComponent<FreeCell>().isFree = true;
+                        }
+                        else
+                        {
+                            fieldCellsV2[cardToPlace.column].Pop();
+                        }
+                        // update column
+                        cardToPlace.column = i;
+                        // update bool
+                        cardToPlace.isInFreeCellSpace = true;
+                        return;
+
+                    }
+                }
+            }
+            // Case - FieldCell stack is empty
+            else if (fieldCellsV2[i].Count == 0)
+            {
+                Vector3 cardPos = fieldCellsPos[i].transform.position;
+                if ((mousePosition.x < cardPos.x + xPlacementOffset
+                     && mousePosition.x > cardPos.x - xPlacementOffset)
+                    && mousePosition.y < cardPos.y + yPlacementOffset
+                    && mousePosition.y > cardPos.y - yPlacementOffset)
+                {
+                    // todo implementation!
+                    Debug.Log("TARGET ACQUIRED - Empty stack");
+                }
+            }
+        }
+
+        // else return to original spot.
+        currentHeldCard.transform.position = originalCardPos;
     }
 }

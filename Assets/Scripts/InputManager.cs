@@ -47,6 +47,7 @@ public class InputManager : MonoBehaviour
             {
 
                 currentHeldCard = hit.collider.gameObject;
+                originalCardPos = currentHeldCard.transform.position;
 
             }
             
@@ -54,7 +55,6 @@ public class InputManager : MonoBehaviour
 
         if (Input.GetMouseButtonUp(0))
         {
-            currentHeldCard = null;
             isMouseBeingHeld = false; // todo remove
             Vector3 mousePosition =
                 Camera.main.ScreenToWorldPoint(new Vector3(Input.mousePosition.x, Input.mousePosition.y, -15));
@@ -72,27 +72,20 @@ public class InputManager : MonoBehaviour
                 }
             }
             // Case - Held click
-            /*
+            
             else
             {
-                if (hit && hit.collider.CompareTag("Card"))
-                {
-                    if (currentHeldCard == null)
-                    {
-                        currentHeldCard = hit.collider.gameObject;
-                    }
-                    else
-                    {
-                        
-                    }
-                }
+                freeCellLogicScript.SnapCard(mousePosition, currentHeldCard, originalCardPos);
+                Debug.Log("MousePos = " + mousePosition);
+               
             }
-            */
+            currentHeldCard = null;
+            
         }
     }
     
   
-
+/*
     void GetMouseClickOLDVERSION()
     {
         if (Input.GetMouseButtonDown(0))
@@ -124,7 +117,7 @@ public class InputManager : MonoBehaviour
                     }
                     else if (hit.collider.CompareTag("Card"))
                     {
-                        ClickedCard(hit.collider.gameObject);
+                        Debug.Log("Clicked a Card");
                     }
                 }
             }
@@ -165,6 +158,7 @@ public class InputManager : MonoBehaviour
         }
         
     }
+    */
 
     private void DraggedCard(GameObject clickedCard)
     {
