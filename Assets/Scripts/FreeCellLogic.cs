@@ -430,6 +430,7 @@ public class FreeCellLogic : MonoBehaviour
                 columnToUpdate = clickedCard.GetComponent<Card>().column;
                 fieldCellsV2[cardComponent.column].Pop();
                 GameObject lastCard = fieldCellsV2[cardComponent.column].Peek();
+                cardComponent.column = index;
                 if (lastCard != null)
                 {
                     lastCard.GetComponent<Card>().isClickable = true;
@@ -513,8 +514,11 @@ public class FreeCellLogic : MonoBehaviour
                     GameObject cardObjectAtTop = fieldCellsV2[i].Peek();
                     Card cardAtTop = cardObjectAtTop.GetComponent<Card>();
                     Card cardToPlace = currentHeldCard.GetComponent<Card>();
-                    if (cardAtTop.suit != cardToPlace.suit
-                        && cardAtTop.val - 1 == cardToPlace.val)
+                    if (
+                        ((IsBlack(cardAtTop) && IsRed(cardToPlace)) 
+                        || (IsBlack(cardToPlace) && IsRed(cardAtTop)))
+                        && 
+                        cardAtTop.val - 1 == cardToPlace.val)
                     {
                         fieldCellsV2[i].Push(currentHeldCard);
                         currentHeldCard.transform.position = new Vector3(cardPos.x,
@@ -523,16 +527,19 @@ public class FreeCellLogic : MonoBehaviour
                         // update prev DataStruct    
                         if (cardToPlace.isInFreeCellSpace)
                         {
-                            freeCells[cardToPlace.column].GetComponent<FreeCell>().isFree = true;
+                            Debug.Log("-----");
+                            Debug.Log(cardToPlace.column);
+                            freeCellsPos[cardToPlace.column].GetComponent<FreeCell>().isFree = true;
                         }
                         else
                         {
                             fieldCellsV2[cardToPlace.column].Pop();
+                            fieldCellsV2[cardToPlace.column].Peek().GetComponent<Card>().isClickable = true;
                         }
                         // update column
                         cardToPlace.column = i;
                         // update bool
-                        cardToPlace.isInFreeCellSpace = true;
+                        cardToPlace.isInFreeCellSpace = false;
                         return;
 
                     }
@@ -555,5 +562,15 @@ public class FreeCellLogic : MonoBehaviour
 
         // else return to original spot.
         currentHeldCard.transform.position = originalCardPos;
+    }
+
+    private static bool IsRed(Card card)
+    {
+        return (card.suit == Suits.Hearts || card.suit == Suits.Diamonds);
+    }
+
+    private bool IsBlack(Card card)
+    {
+        return (card.suit == Suits.Clubs || card.suit == Suits.Spades);
     }
 }
