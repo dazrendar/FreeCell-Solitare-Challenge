@@ -439,18 +439,20 @@ public class FreeCellLogic : MonoBehaviour
             {
                 clickedCard.transform.position = new Vector3(freeCell.transform.position.x,
                     freeCell.transform.position.y, freeCell.transform.position.z - 0.03f);
-                freeCells[columnToUpdate] = clickedCard;
+                freeCells[columnToUpdate] = clickedCard; // todo superfluous 
                 freeCell.GetComponent<FreeCell>().isFree = false;
                 clickedCard.GetComponent<Card>().isInFreeCellSpace = true; 
                 clickedCard.GetComponent<Card>().isClickable = true;  // todo changed this.. must modify logic (in handler)!!!
                 columnToUpdate = clickedCard.GetComponent<Card>().column;
                 fieldCellsV2[cardComponent.column].Pop();
-                GameObject lastCard = fieldCellsV2[cardComponent.column].Peek();
-                cardComponent.column = index;
-                if (lastCard != null)
+                if (fieldCellsV2[cardComponent.column].Count > 0)
                 {
+                    GameObject lastCard = fieldCellsV2[cardComponent.column].Peek();
                     lastCard.GetComponent<Card>().isClickable = true;
                 }
+                
+                cardComponent.column = index;
+                
                 break;
             }
             index++;
@@ -487,6 +489,7 @@ public class FreeCellLogic : MonoBehaviour
                 topMostCardPos.y-0.03f, topMostCardPos.z - 0.03f);
         }
         solutionCells[suitIndex].Push(clickedCard);
+        cardComponent.isClickable = false;
 
         if (cardComponent.isInFreeCellSpace) // TODO MUST UPDATE COL IN FREE CELL SPACE
         {
@@ -495,11 +498,12 @@ public class FreeCellLogic : MonoBehaviour
         else
         {
             fieldCellsV2[cardComponent.column].Pop();
-            GameObject lastCard = fieldCellsV2[cardComponent.column].Peek();
-            if (lastCard != null)
+            if (fieldCellsV2[cardComponent.column].Count > 0)
             {
+                GameObject lastCard = fieldCellsV2[cardComponent.column].Peek();
                 lastCard.GetComponent<Card>().isClickable = true;
             }
+           
             else
             {
                 // todo do i need to add logic here? fieldSquare should be clickable now (no obstruction from card)...
@@ -509,8 +513,12 @@ public class FreeCellLogic : MonoBehaviour
 
     public void MoveCardAround(GameObject clickedCard)
     {
-        clickedCard.transform.position = 
-            Camera.main.ScreenToWorldPoint(new Vector3(Input.mousePosition.x, Input.mousePosition.y, 8));
+        if (clickedCard != null && clickedCard.GetComponent<Card>().isClickable)
+        {
+            clickedCard.transform.position = 
+                Camera.main.ScreenToWorldPoint(new Vector3(Input.mousePosition.x, Input.mousePosition.y, 8));
+
+        }
         
     }
 
@@ -576,7 +584,7 @@ public class FreeCellLogic : MonoBehaviour
                     Debug.Log("TARGET ACQUIRED - Empty stack");
                     fieldCellsV2[i].Push(currentHeldCard);
                     currentHeldCard.transform.position = new Vector3(cardPos.x,
-                        cardPos.y - yOffset, cardPos.z - zOffset);
+                        cardPos.y, cardPos.z - zOffset);
                     Card cardToPlace = currentHeldCard.GetComponent<Card>();
                     // update prev DataStruct    
                     if (cardToPlace.isInFreeCellSpace)

@@ -11,7 +11,7 @@ public class InputManager : MonoBehaviour
     private Vector3 originalCardPos;
     private float mouseStartTimer = 0f;
     private float mouseUpdateTimer;
-    public float mouseClickTimeDelay = 0.5f;
+    public float mouseClickTimeDelay = 0.22f;
     
     // Start is called before the first frame update
     void Start()

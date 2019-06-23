@@ -6,7 +6,7 @@ using UnityEngine.UI;
 
 public class Card : MonoBehaviour
 {
-    public int val;
+    public int val;  // TODO reconsider scope
     public FreeCellLogic.Suits suit;
     public Sprite cardFace;
     
