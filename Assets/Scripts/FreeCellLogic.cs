@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.Serialization;
+using UnityEngine.UI;
 
 public class FreeCellLogic : MonoBehaviour
 {
@@ -27,6 +28,8 @@ public class FreeCellLogic : MonoBehaviour
     public static List<GameObject> unshuffledDeckV2;
     public float xPlacementOffset = 0.65f;
     public float yPlacementOffset = 1f;
+    public GameObject introSplash;
+    public GameObject endSplash;
     
     
    
@@ -72,6 +75,9 @@ public class FreeCellLogic : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        introSplash.GetComponent<Renderer>().enabled = true;
+        endSplash.GetComponent<Renderer>().enabled = false;
+        ToggleChildTextVisibility(endSplash, false);
         fieldCells = new[] {field0, field1, field2, field3, field4, field5, field6, field7}; // todo obsolete
         fieldCellsV2 = new List<Stack<GameObject>>()
         {
@@ -87,8 +93,33 @@ public class FreeCellLogic : MonoBehaviour
         {
             new GameObject(), new GameObject(), new GameObject(), new GameObject()
         };
+        StartCoroutine(fadeIntroSplash());
+        
         PlayGame();
        
+    }
+
+    private void ToggleChildTextVisibility(GameObject obj, Boolean isVisible)
+    {
+        foreach (var text in obj.GetComponentsInChildren<Text>())
+        {
+            text.GetComponent<Text>().enabled = isVisible;
+        }
+    }
+
+
+    IEnumerator fadeIntroSplash()
+    {
+        yield return new WaitForSeconds(2f);
+        introSplash.GetComponent<Renderer>().enabled = false;
+        ToggleChildTextVisibility(introSplash, false);
+    }
+    
+    private void toggleEndSplash()
+    {
+       
+        endSplash.GetComponent<Renderer>().enabled = true;
+        ToggleChildTextVisibility(endSplash, true);
     }
 
     // Update is called once per frame
@@ -97,7 +128,7 @@ public class FreeCellLogic : MonoBehaviour
         // Winning condition
         if (isGameOver())
         {
-            // todo SPLASH page
+            toggleEndSplash();
         }
     }
 
@@ -105,12 +136,14 @@ public class FreeCellLogic : MonoBehaviour
     {
         for (int i = 0; i < 4; i++)
         {
+            Debug.Log("solutionCells[i].Count " + solutionCells[i].Count);
             if (solutionCells[i].Count < 13)
             {
+                
                 return false;
             }
         }
-
+        Debug.Log("GAME OVER!");
         return true;
     }
 
@@ -230,7 +263,7 @@ public class FreeCellLogic : MonoBehaviour
                 generatedCard.GetComponent<Card>().isCardDataUpdated = true;
                 
                 //generatedCard.GetComponent<Card>().sprite = generatedCard.GetComponent<SpriteRenderer>().sprite;
-
+                
                 if (counter == fieldCells[i].Count)
                 {
                     generatedCard.GetComponent<Card>().isClickable = true;
@@ -301,7 +334,7 @@ public class FreeCellLogic : MonoBehaviour
                 deck.Last().transform.position = new Vector3(fieldCellsPos[i].transform.position.x, fieldCellsPos[i].transform.position.y - yInitial,
                     fieldCellsPos[i].transform.position.z - zInitial);
 
-                
+                // deck.Last().GetComponent<Card>().isClickable = true; // turn on for testing
                 if (i >= 4 && j == 5)
                 {
                     deck.Last().GetComponent<Card>().isClickable = true;
