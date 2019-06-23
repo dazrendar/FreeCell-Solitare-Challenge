@@ -406,12 +406,6 @@ public class FreeCellLogic : MonoBehaviour
             // TODO IMPLEMENT
         }
     }
-    
-    
-    private void MoveFromFreeCell(GameObject clickedCard, Card cardComponent, int columnToUpdate)
-    {
-        // TODO: Implement
-    }
 
     private void MoveToFreeCell(GameObject clickedCard, Card cardComponent, int columnToUpdate)
     {
@@ -505,6 +499,9 @@ public class FreeCellLogic : MonoBehaviour
             if (fieldCellsV2[i].Count > 0)
             {
                 Vector3 cardPos = fieldCellsV2[i].Peek().transform.position;
+                
+                
+                
                 if ((mousePosition.x < cardPos.x + xPlacementOffset
                      && mousePosition.x > cardPos.x - xPlacementOffset)
                     && mousePosition.y < cardPos.y + yPlacementOffset
@@ -540,7 +537,7 @@ public class FreeCellLogic : MonoBehaviour
                         cardToPlace.column = i;
                         // update bool
                         cardToPlace.isInFreeCellSpace = false;
-                        return;
+                        return; 
 
                     }
                 }
@@ -554,8 +551,27 @@ public class FreeCellLogic : MonoBehaviour
                     && mousePosition.y < cardPos.y + yPlacementOffset
                     && mousePosition.y > cardPos.y - yPlacementOffset)
                 {
-                    // todo implementation!
                     Debug.Log("TARGET ACQUIRED - Empty stack");
+                    fieldCellsV2[i].Push(currentHeldCard);
+                    currentHeldCard.transform.position = new Vector3(cardPos.x,
+                        cardPos.y - yOffset, cardPos.z - zOffset);
+                    Card cardToPlace = currentHeldCard.GetComponent<Card>();
+                    // update prev DataStruct    
+                    if (cardToPlace.isInFreeCellSpace)
+                    {
+                        freeCellsPos[cardToPlace.column].GetComponent<FreeCell>().isFree = true;
+                    }
+                    else
+                    {
+                        fieldCellsV2[cardToPlace.column].Pop();
+                        fieldCellsV2[cardToPlace.column].Peek().GetComponent<Card>().isClickable = true;
+                    }
+                    // update column
+                    cardToPlace.column = i;
+                    // update bool
+                    cardToPlace.isInFreeCellSpace = false;
+                    return; 
+                    
                 }
             }
         }
