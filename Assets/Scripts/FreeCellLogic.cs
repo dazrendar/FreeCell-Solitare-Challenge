@@ -94,7 +94,24 @@ public class FreeCellLogic : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        
+        // Winning condition
+        if (isGameOver())
+        {
+            // todo SPLASH page
+        }
+    }
+
+    private bool isGameOver()
+    {
+        for (int i = 0; i < 4; i++)
+        {
+            if (solutionCells[i].Count < 13)
+            {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     public static List<Tuple<Suits, int>> GenerateDeck()
@@ -123,7 +140,7 @@ public class FreeCellLogic : MonoBehaviour
                 //Card c = new Card();
 
                 GameObject generatedCard = Instantiate(genericCardPrefab,
-                    Vector3.zero, Quaternion.identity);
+                    new Vector3(0, 0, -30f), Quaternion.identity); // todo fix
                 generatedCard.name = value + " of " + suit;
                 generatedCard.AddComponent<Card>();
                 generatedCard.GetComponent<Card>().suit = suit;
@@ -169,7 +186,7 @@ public class FreeCellLogic : MonoBehaviour
         }
         
         //DistributeCards(newDeck);
-        DistributeCardsV2(newDeckV2);
+        StartCoroutine(DistributeCardsV2(newDeckV2));
 
         //StartCoroutine(DealCards(newDeck));
     }
@@ -268,7 +285,7 @@ public class FreeCellLogic : MonoBehaviour
      * Attaches card objects to Stacks (per column), and updates each
      * card position as per initial "dealing"
      */
-    private void DistributeCardsV2(List<GameObject> deck)
+    IEnumerator DistributeCardsV2(List<GameObject> deck)
     {
         // distribute first 
         for (int i = 0; i < 8; i++)
@@ -278,6 +295,7 @@ public class FreeCellLogic : MonoBehaviour
             
             for (int j = 0; j < 6; j++)
             {
+                yield return new WaitForSeconds(0.01f);
                 fieldCellsV2[i].Push(deck.Last());
                 deck.Last().GetComponent<Card>().column = i;
                 deck.Last().transform.position = new Vector3(fieldCellsPos[i].transform.position.x, fieldCellsPos[i].transform.position.y - yInitial,
@@ -292,18 +310,22 @@ public class FreeCellLogic : MonoBehaviour
                 deck.RemoveAt(deck.Count - 1); // todo remove?
                 yInitial = yOffset * fieldCellsV2[i].Count;
                 zInitial += zOffset;
+                
+                
             }
-        }
-        
-        // distribute remaining 4 cards
-        for (int i = 0; i < 4; i++)
-        {
-            deck.Last().transform.position = new Vector3(fieldCellsV2[i].Peek().transform.position.x, fieldCellsV2[i].Peek().transform.position.y - yOffset,
-                fieldCellsV2[i].Peek().transform.position.z - zOffset);
-            deck.Last().GetComponent<Card>().column = i;
-            deck.Last().GetComponent<Card>().isClickable = true;
-            fieldCellsV2[i].Push(deck.Last());
-            deck.RemoveAt(deck.Count - 1); // todo remove?
+            
+            // distribute remaining 4 cards
+            if (i < 4)
+            {
+                yield return new WaitForSeconds(0.01f);
+                deck.Last().transform.position = new Vector3(fieldCellsV2[i].Peek().transform.position.x, fieldCellsV2[i].Peek().transform.position.y - yOffset,
+                    fieldCellsV2[i].Peek().transform.position.z - zOffset);
+                deck.Last().GetComponent<Card>().column = i;
+                deck.Last().GetComponent<Card>().isClickable = true;
+                fieldCellsV2[i].Push(deck.Last());
+                deck.RemoveAt(deck.Count - 1); // todo remove?
+            }
+            
         }
     }
 
