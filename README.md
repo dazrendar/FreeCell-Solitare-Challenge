@@ -1,6 +1,6 @@
 # FreeCell-Solitare-Challenge
 
-* Note: Game resolution should be set to 16:9
+Note: Game resolution should be set to 16:9
 Game should be functioning properly now.
 Simple Json I/O support for high score.
 
