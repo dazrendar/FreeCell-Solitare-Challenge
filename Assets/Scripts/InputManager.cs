@@ -27,7 +27,7 @@ public class InputManager : MonoBehaviour
         
         if (isMouseBeingHeld && mouseUpdateTimer > mouseClickTimeDelay)
         {
-            Debug.Log(mouseUpdateTimer);
+            //Debug.Log(mouseUpdateTimer);
             DraggedCard(currentHeldCard);
         }
         
@@ -75,7 +75,11 @@ public class InputManager : MonoBehaviour
             
             else
             {
-                freeCellLogicScript.SnapCard(mousePosition, currentHeldCard, originalCardPos);
+                if (currentHeldCard != null)
+                {
+                    freeCellLogicScript.SnapCard(mousePosition, currentHeldCard, originalCardPos);
+                }
+
                 Debug.Log("MousePos = " + mousePosition);
                
             }

@@ -136,7 +136,6 @@ public class FreeCellLogic : MonoBehaviour
     {
         for (int i = 0; i < 4; i++)
         {
-            Debug.Log("solutionCells[i].Count " + solutionCells[i].Count);
             if (solutionCells[i].Count < 13)
             {
                 
@@ -238,6 +237,7 @@ public class FreeCellLogic : MonoBehaviour
         }
     }
 
+    /*
     IEnumerator DealCards(List<Tuple<Suits, int>> deck)
     {
         for (int i = 0; i < 8; i++)
@@ -278,7 +278,7 @@ public class FreeCellLogic : MonoBehaviour
             cardObjects.Add(fieldGameObj);
         }
     }
-
+*/
     public Dictionary<string, int> generateCardIndexMap(List<Tuple<Suits, int>> deck)
     {
         Dictionary<string, int> dictionary = new Dictionary<string, int>();
@@ -383,7 +383,7 @@ public class FreeCellLogic : MonoBehaviour
                 }
                 // Case: Current card value is 1 greater than card at top of solution pile
                 else if (solutionCells[0].Count > 0 && 
-                         cardComponent.val == solutionCells[0].Peek().GetComponent<Card>().val+1)
+                         cardComponent.val == solutionCells[0].Peek().GetComponent<Card>().val+1) // todo elseif can be refactored ^^
                 {
                     Debug.Log("HANDLING NEXT CARD TO SEND");
                     HandleSolutionPlacement(clickedCard, cardComponent, 0);
@@ -565,12 +565,10 @@ public class FreeCellLogic : MonoBehaviour
                 
                 
                 
-                if ((mousePosition.x < cardPos.x + xPlacementOffset
-                     && mousePosition.x > cardPos.x - xPlacementOffset)
-                    && mousePosition.y < cardPos.y + yPlacementOffset
-                    && mousePosition.y > cardPos.y - yPlacementOffset)
+                if (isMouseInRangeOfSnappablePile(mousePosition, cardPos))
                 {
                     Debug.Log("TARGET ACQUIRED");
+                    Debug.Log("TARGET 23123123323123213ACQUIRED");
                     GameObject cardObjectAtTop = fieldCellsV2[i].Peek();
                     Card cardAtTop = cardObjectAtTop.GetComponent<Card>();
                     Card cardToPlace = currentHeldCard.GetComponent<Card>();
@@ -580,6 +578,7 @@ public class FreeCellLogic : MonoBehaviour
                         && 
                         cardAtTop.val - 1 == cardToPlace.val)
                     {
+                        Debug.Log("TARGET cond met");
                         // Set top of stack in free cells pile to not be clickable
                         fieldCellsV2[i].Peek().GetComponent<Card>().isClickable = false;
                         fieldCellsV2[i].Push(currentHeldCard);
@@ -603,16 +602,14 @@ public class FreeCellLogic : MonoBehaviour
                         return; 
 
                     }
+                    
                 }
             }
-            // Case - FieldCell stack is empty
+            // Case: FieldCell stack is empty
             else if (fieldCellsV2[i].Count == 0)
             {
                 Vector3 cardPos = fieldCellsPos[i].transform.position;
-                if ((mousePosition.x < cardPos.x + xPlacementOffset
-                     && mousePosition.x > cardPos.x - xPlacementOffset)
-                    && mousePosition.y < cardPos.y + yPlacementOffset
-                    && mousePosition.y > cardPos.y - yPlacementOffset)
+                if (isMouseInRangeOfSnappablePile(mousePosition, cardPos))
                 {
                     Debug.Log("TARGET ACQUIRED - Empty stack");
                     fieldCellsV2[i].Push(currentHeldCard);
@@ -639,8 +636,46 @@ public class FreeCellLogic : MonoBehaviour
             }
         }
 
+       
+        // Case: trying to snap to solution cell:
+        for (int i = 0; i < solutionCells.Count; i++)
+        {
+            Debug.Log("PLACING SOLUTION DRAG FORM");
+            Vector3 placementPos = solutionCellsPos[i].transform.position;
+            Card cardComponent = currentHeldCard.GetComponent<Card>();
+            int suitVal;
+            if (cardComponent.suit == Suits.Clubs) suitVal = 0;
+            else if (cardComponent.suit == Suits.Spades) suitVal = 1;
+            else if (cardComponent.suit == Suits.Diamonds) suitVal = 2;
+            else suitVal = 3;
+            
+            if (isMouseInRangeOfSnappablePile(mousePosition, placementPos) && suitVal == i)
+            {
+                if ((solutionCells[0].Count == 0 && cardComponent.val == 1)
+                    || solutionCells[0].Count > 0 && 
+                    cardComponent.val == solutionCells[0].Peek().GetComponent<Card>().val+1)
+                {
+                    
+                    HandleSolutionPlacement(currentHeldCard, cardComponent, suitVal);
+                    return;
+                }
+
+            }
+            
+        }
+        
+
+
         // else return to original spot.
         currentHeldCard.transform.position = originalCardPos;
+    }
+
+    private bool isMouseInRangeOfSnappablePile(Vector3 mousePosition, Vector3 cardPos)
+    {
+        return (mousePosition.x < cardPos.x + xPlacementOffset
+                && mousePosition.x > cardPos.x - xPlacementOffset)
+               && mousePosition.y < cardPos.y + yPlacementOffset
+               && mousePosition.y > cardPos.y - yPlacementOffset;
     }
 
     private static bool IsRed(Card card)
