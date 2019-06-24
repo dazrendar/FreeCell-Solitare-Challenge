@@ -11,6 +11,7 @@
           <e p="FreeCell.cs" t="Include" />
           <e p="FreeCellLogic.cs" t="Include" />
           <e p="InputManager.cs" t="Include" />
+          <e p="PlayerScores.cs" t="Include" />
         </e>
       </e>
       <e p="FreeCell Solitare Challenge.sln" t="IncludeFlat" />
