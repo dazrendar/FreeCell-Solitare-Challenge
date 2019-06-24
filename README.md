@@ -1,6 +1,8 @@
 # FreeCell-Solitare-Challenge
 
-Note: Game resolution should be set to 16:9
+How-To: Game resolution should be set to 16:9
+
+Open "SampleScene" in Scenes folder.
 
 Game should be functioning properly now.
 
