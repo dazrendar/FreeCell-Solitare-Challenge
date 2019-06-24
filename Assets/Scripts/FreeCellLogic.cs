@@ -26,7 +26,6 @@ public class FreeCellLogic : MonoBehaviour
     public float zOffset = 0.02f;
     public static Dictionary<string, int> cardIndexMap;
     public static List<Tuple<Suits, int>> unshuffledDeck;
-    public static List<GameObject> unshuffledDeckV2;
     public float xPlacementOffset = 0.65f;
     public float yPlacementOffset = 1f;
     public GameObject introSplash;
@@ -41,21 +40,11 @@ public class FreeCellLogic : MonoBehaviour
     public GameObject[] fieldCellsPos;
     
     public List<GameObject> freeCells;
-    public List<Tuple<Suits, int>>[] fieldCells;
     public List<Stack<GameObject>> fieldCellsV2;
     public List<Stack<GameObject>> solutionCells;
     public List<List<GameObject>> cardObjects = new List<List<GameObject>>();
 
-    
-    private List<Tuple<Suits, int>> field0 = new List<Tuple<Suits, int>>();
-    private List<Tuple<Suits, int>> field1 = new List<Tuple<Suits, int>>();
-    private List<Tuple<Suits, int>> field2 = new List<Tuple<Suits, int>>();
-    private List<Tuple<Suits, int>> field3 = new List<Tuple<Suits, int>>();
-    private List<Tuple<Suits, int>> field4 = new List<Tuple<Suits, int>>();
-    private List<Tuple<Suits, int>> field5 = new List<Tuple<Suits, int>>();
-    private List<Tuple<Suits, int>> field6 = new List<Tuple<Suits, int>>();
-    private List<Tuple<Suits, int>> field7 = new List<Tuple<Suits, int>>();
-    
+    // Stack to hold the cards; one stack per column in field cells section
     private Stack<GameObject> field0V2 = new Stack<GameObject>();
     private Stack<GameObject> field1V2 = new Stack<GameObject>();
     private Stack<GameObject> field2V2 = new Stack<GameObject>();
@@ -79,7 +68,6 @@ public class FreeCellLogic : MonoBehaviour
         introSplash.GetComponent<Renderer>().enabled = true;
         endSplash.GetComponent<Renderer>().enabled = false;
         ToggleChildTextVisibility(endSplash, false);
-        fieldCells = new[] {field0, field1, field2, field3, field4, field5, field6, field7}; // todo obsolete
         fieldCellsV2 = new List<Stack<GameObject>>()
         {
             field0V2, field1V2, field2V2, field3V2,
@@ -94,7 +82,7 @@ public class FreeCellLogic : MonoBehaviour
         {
             new GameObject(), new GameObject(), new GameObject(), new GameObject()
         };
-        StartCoroutine(fadeIntroSplash());
+        StartCoroutine(disableIntroSplash());
         
         PlayGame();
        
@@ -109,16 +97,15 @@ public class FreeCellLogic : MonoBehaviour
     }
 
 
-    IEnumerator fadeIntroSplash()
+    IEnumerator disableIntroSplash()
     {
         yield return new WaitForSeconds(2f);
         introSplash.GetComponent<Renderer>().enabled = false;
         ToggleChildTextVisibility(introSplash, false);
     }
     
-    private void toggleEndSplash()
+    private void enableEndSplash()
     {
-       
         endSplash.GetComponent<Renderer>().enabled = true;
         ToggleChildTextVisibility(endSplash, true);
     }
@@ -126,10 +113,10 @@ public class FreeCellLogic : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        // Winning condition
+        // Check for winning condition
         if (isGameOver())
         {
-            toggleEndSplash();
+            enableEndSplash();
         }
     }
 
@@ -147,7 +134,8 @@ public class FreeCellLogic : MonoBehaviour
         return true;
     }
 
-    public static List<Tuple<Suits, int>> GenerateDeck()
+    // Used to generate the suit-value pairs used to help updating the card sprites
+    public static List<Tuple<Suits, int>> GenerateSuitValuePairsDeck()
     {
         List<Tuple<Suits, int>> generatedDeck = new List<Tuple<Suits, int>>();
         foreach (Suits s in Enum.GetValues(typeof(Suits)))
@@ -162,24 +150,21 @@ public class FreeCellLogic : MonoBehaviour
         return generatedDeck;
     }
     
-    
-    public List<GameObject> GenerateDeckV2()
+    // Generated the deck
+    public List<GameObject> GenerateDeck()
     {
         List<GameObject> generatedDeck = new List<GameObject>();
         foreach (Suits suit in Enum.GetValues(typeof(Suits)))
         {
             foreach (int value in Values)
             {
-                //Card c = new Card();
-
                 GameObject generatedCard = Instantiate(genericCardPrefab,
-                    new Vector3(0, 0, -30f), Quaternion.identity); // todo fix
+                    new Vector3(0, 0, -30f), Quaternion.identity);
                 generatedCard.name = value + " of " + suit;
                 generatedCard.AddComponent<Card>();
                 generatedCard.GetComponent<Card>().suit = suit;
                 generatedCard.GetComponent<Card>().val = value;
-                generatedCard.GetComponent<Card>().column = 0; // todo: must be updated in future !!!
-                generatedCard.GetComponent<Card>().isCardDataUpdated = true;  // todo obsolete??
+                generatedCard.GetComponent<Card>().column = 0; 
      
  
                 generatedDeck.Add(generatedCard);
@@ -192,36 +177,11 @@ public class FreeCellLogic : MonoBehaviour
 
     public void PlayGame()
     {
-        List<Tuple<Suits, int>> newDeck = GenerateDeck();
-        unshuffledDeck = GenerateDeck();
-
-        List<GameObject> newDeckV2 = GenerateDeckV2();
-        //unshuffledDeckV2 = GenerateDeckV2(); // todo potentially superfluous 
+        unshuffledDeck = GenerateSuitValuePairsDeck();
+        cardIndexMap = generateCardIndexMap(unshuffledDeck);
+        List<GameObject> newDeckV2 = GenerateDeck();
         Shuffle(newDeckV2);
-        
-        /*
-        foreach (GameObject g in newDeckV2)
-        {
-            Card cardInfo = g.GetComponent<Card>();
-            Debug.Log(cardInfo.suit + " " + cardInfo.val);
-        }
-        */
-        
-        
-        
-        // todo must have deck as card class...
-        
-        
-        cardIndexMap = generateCardIndexMap(unshuffledDeck); // TODO REMOVE?
-        foreach (KeyValuePair<string, int> d in cardIndexMap)
-        {
-            //Debug.Log(d);
-        }
-        
-        //DistributeCards(newDeck);
-        StartCoroutine(DistributeCardsV2(newDeckV2));
-
-        //StartCoroutine(DealCards(newDeck));
+        StartCoroutine(DistributeCards(newDeckV2));
     }
 
     void Shuffle<T>(List<T> list)
@@ -237,49 +197,7 @@ public class FreeCellLogic : MonoBehaviour
             list[n] = temp;
         }
     }
-
-    /*
-    IEnumerator DealCards(List<Tuple<Suits, int>> deck)
-    {
-        for (int i = 0; i < 8; i++)
-        {
-            float zInitial = 0.3f;
-            float yInitial = 0f;
-            List<GameObject> fieldGameObj = new List<GameObject>();
-
-            int counter = 1;
-            
-            foreach (Tuple<Suits, int> card in fieldCells[i])
-            {
-                yield return new WaitForSeconds(0.01f);
-                GameObject generatedCard = Instantiate(genericCardPrefab,
-                    new Vector3(fieldCellsPos[i].transform.position.x, fieldCellsPos[i].transform.position.y - yInitial,
-                        fieldCellsPos[i].transform.position.z - zInitial),
-                    Quaternion.identity);
-                generatedCard.name = card.Item2 + " of " + card.Item1;
-                generatedCard.AddComponent<Card>();
-                generatedCard.GetComponent<Card>().suit = card.Item1;
-                generatedCard.GetComponent<Card>().val = card.Item2;
-                generatedCard.GetComponent<Card>().column = i;
-                generatedCard.GetComponent<Card>().isCardDataUpdated = true;
-                
-                //generatedCard.GetComponent<Card>().sprite = generatedCard.GetComponent<SpriteRenderer>().sprite;
-                
-                if (counter == fieldCells[i].Count)
-                {
-                    generatedCard.GetComponent<Card>().isClickable = true;
-                }
-                counter++;
-                yInitial += yOffset;
-                zInitial += zOffset;
-                
-                fieldGameObj.Add(generatedCard);
-            }
-
-            cardObjects.Add(fieldGameObj);
-        }
-    }
-*/
+    
     public Dictionary<string, int> generateCardIndexMap(List<Tuple<Suits, int>> deck)
     {
         Dictionary<string, int> dictionary = new Dictionary<string, int>();
@@ -289,37 +207,11 @@ public class FreeCellLogic : MonoBehaviour
             dictionary.Add(card.Item2.ToString() + card.Item1, index);
             index++;
         }
-
         return dictionary;
     }
 
-    /*
-    private void DistributeCards(List<Tuple<Suits, int>> deck)
-    {
-        // distribute first 
-        for (int i = 0; i < 8; i++)
-        {
-            for (int j = 0; j < 6; j++)
-            {
-                fieldCells[i].Add(deck.Last());
-                deck.RemoveAt(deck.Count - 1);
-            }
-        }
-        
-        // distribute remaining 4 cards
-        for (int i = 0; i < 4; i++)
-        {
-            fieldCells[i].Add(deck.Last());
-            deck.RemoveAt(deck.Count - 1);
-        }
-    }
-    */
-    
-    /*
-     * Attaches card objects to Stacks (per column), and updates each
-     * card position as per initial "dealing"
-     */
-    IEnumerator DistributeCardsV2(List<GameObject> deck)
+    // Puts cards on the field
+    IEnumerator DistributeCards(List<GameObject> deck)
     {
         // distribute first 
         for (int i = 0; i < 8; i++)
@@ -335,13 +227,11 @@ public class FreeCellLogic : MonoBehaviour
                 deck.Last().transform.position = new Vector3(fieldCellsPos[i].transform.position.x, fieldCellsPos[i].transform.position.y - yInitial,
                     fieldCellsPos[i].transform.position.z - zInitial);
 
-                // deck.Last().GetComponent<Card>().isClickable = true; // turn on for testing
                 if (i >= 4 && j == 5)
                 {
                     deck.Last().GetComponent<Card>().isClickable = true;
                 }
-                
-                deck.RemoveAt(deck.Count - 1); // todo remove?
+                deck.RemoveAt(deck.Count - 1);
                 yInitial = yOffset * fieldCellsV2[i].Count;
                 zInitial += zOffset;
                 
@@ -357,7 +247,7 @@ public class FreeCellLogic : MonoBehaviour
                 deck.Last().GetComponent<Card>().column = i;
                 deck.Last().GetComponent<Card>().isClickable = true;
                 fieldCellsV2[i].Push(deck.Last());
-                deck.RemoveAt(deck.Count - 1); // todo remove?
+                deck.RemoveAt(deck.Count - 1); 
             }
             
         }
@@ -368,8 +258,7 @@ public class FreeCellLogic : MonoBehaviour
         Card cardComponent = clickedCard.GetComponent<Card>();
         if (cardComponent.isClickable)
         {
-            Debug.Log("Clicked a clickable card!");
-            // check which freecells are avail (iterate) (reminder; these cannot stack!)
+            // check which freecells are avail (iterate)
 
             int columnToUpdate = 0;
             
@@ -379,14 +268,12 @@ public class FreeCellLogic : MonoBehaviour
             {
                 if (solutionCells[0].Count == 0 && cardComponent.val == 1)
                 {
-                    Debug.Log("FOUND AN ACE!!");
                     HandleSolutionPlacement(clickedCard, cardComponent, 0);
                 }
                 // Case: Current card value is 1 greater than card at top of solution pile
                 else if (solutionCells[0].Count > 0 && 
                          cardComponent.val == solutionCells[0].Peek().GetComponent<Card>().val+1) // todo elseif can be refactored ^^
                 {
-                    Debug.Log("HANDLING NEXT CARD TO SEND");
                     HandleSolutionPlacement(clickedCard, cardComponent, 0);
                 }
                 // Case: Card can only be potentially moved to a "Free Cell"
@@ -399,14 +286,12 @@ public class FreeCellLogic : MonoBehaviour
             {
                 if (solutionCells[1].Count == 0 && cardComponent.val == 1)
                 {
-                    Debug.Log("FOUND AN ACE!!");
                     HandleSolutionPlacement(clickedCard, cardComponent, 1);
                 }
                 // Case: Current card value is 1 greater than card at top of solution pile
                 else if (solutionCells[1].Count > 0 && 
                          cardComponent.val == solutionCells[1].Peek().GetComponent<Card>().val+1)
                 {
-                    Debug.Log("HANDLING NEXT CARD TO SEND");
                     HandleSolutionPlacement(clickedCard, cardComponent, 1);
                 }
                 // Case: Card can only be potentially moved to a "Free Cell"
@@ -419,14 +304,12 @@ public class FreeCellLogic : MonoBehaviour
             {
                 if (solutionCells[2].Count == 0 && cardComponent.val == 1)
                 {
-                    Debug.Log("FOUND AN ACE!!");
                     HandleSolutionPlacement(clickedCard, cardComponent, 2);
                 }
                 // Case: Current card value is 1 greater than card at top of solution pile
                 else if (solutionCells[2].Count > 0 && 
                          cardComponent.val == solutionCells[2].Peek().GetComponent<Card>().val+1)
                 {
-                    Debug.Log("HANDLING NEXT CARD TO SEND");
                     HandleSolutionPlacement(clickedCard, cardComponent, 2);
                 }
                 // Case: Card can only be potentially moved to a "Free Cell"
@@ -439,14 +322,12 @@ public class FreeCellLogic : MonoBehaviour
             {
                 if (solutionCells[3].Count == 0 && cardComponent.val == 1)
                 {
-                    Debug.Log("FOUND AN ACE!!");
                     HandleSolutionPlacement(clickedCard, cardComponent, 3);
                 }
                 // Case: Current card value is 1 greater than card at top of solution pile
                 else if (solutionCells[3].Count > 0 && 
                          cardComponent.val == solutionCells[3].Peek().GetComponent<Card>().val+1)
                 {
-                    Debug.Log("HANDLING NEXT CARD TO SEND");
                     HandleSolutionPlacement(clickedCard, cardComponent, 3);
                 }
                 // Case: Card can only be potentially moved to a "Free Cell"
@@ -455,11 +336,6 @@ public class FreeCellLogic : MonoBehaviour
                     MoveToFreeCell(clickedCard, cardComponent, columnToUpdate);
                 }
             }
-        }
-        // Case: Card is in Free Cell space:
-        else if (cardComponent.isClickable && cardComponent.isInFreeCellSpace)
-        {
-            // TODO IMPLEMENT
         }
     }
 
@@ -476,7 +352,7 @@ public class FreeCellLogic : MonoBehaviour
                 freeCells[columnToUpdate] = clickedCard; // todo superfluous 
                 freeCell.GetComponent<FreeCell>().isFree = false;
                 clickedCard.GetComponent<Card>().isInFreeCellSpace = true; 
-                clickedCard.GetComponent<Card>().isClickable = true;  // todo changed this.. must modify logic (in handler)!!!
+                clickedCard.GetComponent<Card>().isClickable = true;  
                 columnToUpdate = clickedCard.GetComponent<Card>().column;
                 fieldCellsV2[cardComponent.column].Pop();
                 if (fieldCellsV2[cardComponent.column].Count > 0)
@@ -491,27 +367,10 @@ public class FreeCellLogic : MonoBehaviour
             }
             index++;
         }
-
-        /*
-        int indexToRemove = fieldCells[columnToUpdate].Count - 1; // remove
-        fieldCells[columnToUpdate].RemoveAt(indexToRemove);  // remove
-        */
-        //fieldCells[columnToUpdate][indexToRemove-1] 
-
-        
-        // make next card up clickable
-        //cardObjects[columnToUpdate].RemoveAt(indexToRemove);
-        //GameObject cardToUpdate = cardObjects[columnToUpdate][indexToRemove - 1];
-        //cardToUpdate.GetComponent<Card>().isClickable = true;
-        
-        
     }
     
     private void HandleSolutionPlacement(GameObject clickedCard, Card cardComponent, int suitIndex)
     {
-        
-        // update card position TODO !!!!!!! 
-        Debug.Log(" ** solutionCells Count = " + solutionCells[suitIndex].Count());
         if (solutionCells[suitIndex].Count() == 0) {
             clickedCard.transform.position = new Vector3(solutionCellsPos[suitIndex].transform.position.x,
                 solutionCellsPos[suitIndex].transform.position.y, solutionCellsPos[suitIndex].transform.position.z - 0.3f);
@@ -538,10 +397,7 @@ public class FreeCellLogic : MonoBehaviour
                 lastCard.GetComponent<Card>().isClickable = true;
             }
            
-            else
-            {
-                // todo do i need to add logic here? fieldSquare should be clickable now (no obstruction from card)...
-            }
+            
         }
     }
 
@@ -568,8 +424,6 @@ public class FreeCellLogic : MonoBehaviour
                 
                 if (isMouseInRangeOfSnappablePile(mousePosition, cardPos))
                 {
-                    Debug.Log("TARGET ACQUIRED");
-                    Debug.Log("TARGET 23123123323123213ACQUIRED");
                     GameObject cardObjectAtTop = fieldCellsV2[i].Peek();
                     Card cardAtTop = cardObjectAtTop.GetComponent<Card>();
                     Card cardToPlace = currentHeldCard.GetComponent<Card>();
@@ -579,7 +433,6 @@ public class FreeCellLogic : MonoBehaviour
                         && 
                         cardAtTop.val - 1 == cardToPlace.val)
                     {
-                        Debug.Log("TARGET cond met");
                         // Set top of stack in free cells pile to not be clickable
                         fieldCellsV2[i].Peek().GetComponent<Card>().isClickable = false;
                         fieldCellsV2[i].Push(currentHeldCard);
@@ -612,7 +465,7 @@ public class FreeCellLogic : MonoBehaviour
                 Vector3 cardPos = fieldCellsPos[i].transform.position;
                 if (isMouseInRangeOfSnappablePile(mousePosition, cardPos))
                 {
-                    Debug.Log("TARGET ACQUIRED - Empty stack");
+                    //Debug.Log("TARGET ACQUIRED - Empty stack");
                     fieldCellsV2[i].Push(currentHeldCard);
                     currentHeldCard.transform.position = new Vector3(cardPos.x,
                         cardPos.y, cardPos.z - zOffset);
@@ -641,7 +494,7 @@ public class FreeCellLogic : MonoBehaviour
         // Case: trying to snap to solution cell:
         for (int i = 0; i < solutionCells.Count; i++)
         {
-            Debug.Log("PLACING SOLUTION DRAG FORM");
+            //Debug.Log("PLACING SOLUTION DRAG FORM");
             Vector3 placementPos = solutionCellsPos[i].transform.position;
             Card cardComponent = currentHeldCard.GetComponent<Card>();
             int suitVal;
@@ -652,11 +505,12 @@ public class FreeCellLogic : MonoBehaviour
             
             if (isMouseInRangeOfSnappablePile(mousePosition, placementPos) && suitVal == i)
             {
+                //Debug.Log("***IS SNAPPABLE***");
                 if ((solutionCells[0].Count == 0 && cardComponent.val == 1)
                     || solutionCells[0].Count > 0 && 
                     cardComponent.val == solutionCells[0].Peek().GetComponent<Card>().val+1)
                 {
-                    
+                    //Debug.Log("***PLACING***");
                     HandleSolutionPlacement(currentHeldCard, cardComponent, suitVal);
                     return;
                 }
