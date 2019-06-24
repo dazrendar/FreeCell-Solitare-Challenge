@@ -144,11 +144,11 @@
               </provider>
             </entry>
           </file>
-          <file pinned="false" current-in-tab="true">
+          <file pinned="false" current-in-tab="false">
             <entry file="file://$PROJECT_DIR$/Assets/Scripts/Card.cs">
               <provider selected="true" editor-type-id="text-editor">
-                <state relative-caret-position="150">
-                  <caret line="14" column="26" lean-forward="true" selection-start-line="14" selection-start-column="26" selection-end-line="14" selection-end-column="26" />
+                <state relative-caret-position="195">
+                  <caret line="17" column="43" lean-forward="true" selection-start-line="17" selection-start-column="43" selection-end-line="17" selection-end-column="43" />
                   <folding>
                     <marker date="1561363241817" expanded="false" signature="6:114" ph="..." />
                     <marker date="1561363241817" expanded="true" signature="149:1017" ph="{...}" />
@@ -156,6 +156,15 @@
                     <marker date="1561363241817" expanded="true" signature="644:694" ph="{...}" />
                     <marker date="1561363241817" expanded="true" signature="734:1015" ph="{...}" />
                   </folding>
+                </state>
+              </provider>
+            </entry>
+          </file>
+          <file pinned="false" current-in-tab="true">
+            <entry file="file://$PROJECT_DIR$/README.md">
+              <provider selected="true" editor-type-id="text-editor">
+                <state relative-caret-position="30">
+                  <caret line="2" column="32" selection-start-line="2" selection-start-column="32" selection-end-line="2" selection-end-column="32" />
                 </state>
               </provider>
             </entry>
@@ -308,10 +317,10 @@
       <find>cardIndexMap</find>
       <find>SnapCard</find>
       <find>Debug.Log</find>
-      <find>cardFace</find>
       <find>field0</find>
       <find>todo</find>
       <find>Mouse</find>
+      <find>cardFace</find>
     </findStrings>
   </component>
   <component name="Git.Settings">
@@ -344,6 +353,7 @@
         <option value="$PROJECT_DIR$/Assets/Scripts/Card.cs" />
         <option value="$PROJECT_DIR$/Assets/Scripts/FreeCell.cs" />
         <option value="$PROJECT_DIR$/Assets/Scripts/FreeCellLogic.cs" />
+        <option value="$PROJECT_DIR$/README.md" />
       </list>
     </option>
   </component>
@@ -370,12 +380,6 @@
               <item name="Project" type="161ac34:FileSystemExplorerRootNode" />
               <item name="FreeCell Solitare Challenge" type="34e6ba20:FileSystemExplorerNode" />
               <item name="Assets" type="34e6ba20:FileSystemExplorerNode" />
-            </path>
-            <path>
-              <item name="Project" type="161ac34:FileSystemExplorerRootNode" />
-              <item name="FreeCell Solitare Challenge" type="34e6ba20:FileSystemExplorerNode" />
-              <item name="Assets" type="34e6ba20:FileSystemExplorerNode" />
-              <item name="StreamingAssets" type="34e6ba20:FileSystemExplorerNode" />
             </path>
           </expand>
           <select />
@@ -439,12 +443,12 @@
       <workItem from="1560783681567" duration="348000" />
       <workItem from="1561086121450" duration="11335000" />
       <workItem from="1561133656994" duration="37994000" />
-      <workItem from="1561352786241" duration="10023000" />
+      <workItem from="1561352786241" duration="10581000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="92059000" />
+    <option name="totallyTimeSpent" value="92617000" />
   </component>
   <component name="TodoView">
     <todo-panel id="selected-file">
@@ -739,8 +743,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/Assets/Scripts/Card.cs">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="150">
-          <caret line="14" column="26" lean-forward="true" selection-start-line="14" selection-start-column="26" selection-end-line="14" selection-end-column="26" />
+        <state relative-caret-position="195">
+          <caret line="17" column="43" lean-forward="true" selection-start-line="17" selection-start-column="43" selection-end-line="17" selection-end-column="43" />
           <folding>
             <marker date="1561363241817" expanded="false" signature="6:114" ph="..." />
             <marker date="1561363241817" expanded="true" signature="149:1017" ph="{...}" />
@@ -748,6 +752,13 @@
             <marker date="1561363241817" expanded="true" signature="644:694" ph="{...}" />
             <marker date="1561363241817" expanded="true" signature="734:1015" ph="{...}" />
           </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/README.md">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="30">
+          <caret line="2" column="32" selection-start-line="2" selection-start-column="32" selection-end-line="2" selection-end-column="32" />
         </state>
       </provider>
     </entry>
